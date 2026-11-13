@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}箱动态{% endblock %}
+{% block content %}
+<h1>箱动态</h1>
+
+<section class="card">
+  <h2>动态链（按箱，按事件时间串联）</h2>
+  <form method="get" class="filter-form">
+    <input type="text" name="container_no" value="{{ filters.container_no }}" placeholder="箱号模糊查询">
+    <select name="event_type">
+      <option value="">全部事件类型</option>
+      {% for t in ['GATE_IN','LOAD','DISCHARGE','GATE_OUT','PLAN_STOW','UNKNOWN'] %}
+      <option value="{{ t }}" {% if filters.event_type==t %}selected{% endif %}>{{ t }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit">查询</button>
+  </form>
+  <table>
+    <thead><tr><th>箱号</th><th>链上事件（时间序）</th><th>事件数</th><th>链状态</th><th>问题</th></tr></thead>
+    <tbody>{% for c in chains %}
+      <tr>
+        <td class="mono">{{ c.container_no }}</td>
+        <td>{% for t in c.event_types %}<span class="chain-step">{{ t }}</span>
+          {% if not loop.last %}<span class="chain-arrow">→</span>{% endif %}{% endfor %}</td>
+        <td>{{ c.count }}</td>
+        <td><span class="badge badge-{{ c.status }}">{{ c.status }}</span></td>
+        <td class="issues">{% for i in c.issues %}<div>{{ i }}</div>{% endfor %}</td>
+      </tr>
+    {% else %}<tr><td colspan="5" class="empty">无动态链数据。</td></tr>{% endfor %}</tbody>
+  </table>
+</section>
+
+<section class="card">
+  <h2>归一化事件明细（前 300 条）</h2>
+  <table>
+    <thead><tr><th>箱号</th><th>事件</th><th>时间</th><th>港口</th><th>船名/航次</th>
+      <th>箱型</th><th>TEU</th><th>重空</th><th>标记</th><th>血缘</th></tr></thead>
+    <tbody>{% for e in events %}
+      <tr class="{{ 'dup-row' if e.is_duplicate }}">
+        <td class="mono">{{ e.container_no }}</td>
+        <td><span class="badge">{{ e.event_type }}</span></td>
+        <td>{{ e.event_time or '—' }}</td>
+        <td>{{ e.port_code or '—' }}</td>
+        <td>{{ e.vessel_name or '—' }} / {{ e.voyage_no or '—' }}</td>
+        <td>{{ e.container_type or '—' }}</td>
+        <td>{{ (e.size_ft or 20) / 20 }}</td>
+        <td>{{ e.laden_status or '—' }}</td>
+        <td class="issues">
+          {% if e.is_duplicate %}<div>DUPLICATE</div>{% endif %}
+          {% for fl in e.quality_flags %}{% if fl != 'DUPLICATE_MESSAGE' %}<div>{{ fl }}</div>{% endif %}{% endfor %}
+        </td>
+        <td><a href="{{ url_for('lineage', event_id=e.event_id) }}">追血缘</a></td>
+      </tr>
+    {% endfor %}</tbody>
+  </table>
+</section>
+{% endblock %}

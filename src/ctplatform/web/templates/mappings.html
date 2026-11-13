@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}映射规则{% endblock %}
+{% block content %}
+<h1>映射规则</h1>
+
+<section class="card">
+  <h2>表格映射模板</h2>
+  <table>
+    <thead><tr><th>模板ID</th><th>名称</th><th>来源类型</th><th>映射字段数</th></tr></thead>
+    <tbody>{% for t in templates %}
+      <tr><td class="mono">{{ t[0] }}</td><td>{{ t[1] }}</td><td>{{ t[2] }}</td><td>{{ t[3] }}</td></tr>
+    {% endfor %}</tbody>
+  </table>
+  <h3>列级映射明细</h3>
+  <table>
+    <thead><tr><th>模板</th><th>源列</th><th>→</th><th>统一字段</th><th>转换</th></tr></thead>
+    <tbody>{% for m in fields %}
+      <tr><td class="mono">{{ m[0] }}</td><td>{{ m[1] }}</td>
+      <td class="arrow">→</td><td class="mono">{{ m[2] }}</td><td>{{ m[3] or '—' }}</td></tr>
+    {% endfor %}</tbody>
+  </table>
+</section>
+
+<section class="card">
+  <h2>统一代码表（{{ codes|length }} 条）</h2>
+  <table>
+    <thead><tr><th>域</th><th>来源体系</th><th>原始码</th><th>→</th><th>标准码</th><th>名称</th></tr></thead>
+    <tbody>{% for c in codes %}
+      <tr><td><span class="badge">{{ c[0] }}</span></td><td>{{ c[1] }}</td>
+      <td class="mono">{{ c[2] }}</td><td class="arrow">→</td>
+      <td class="mono">{{ c[3] }}</td><td>{{ c[4] }}</td></tr>
+    {% endfor %}</tbody>
+  </table>
+</section>
+{% endblock %}

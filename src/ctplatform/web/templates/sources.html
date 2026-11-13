@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}数据源接入{% endblock %}
+{% block content %}
+<h1>数据源接入</h1>
+<section class="card">
+  <h2>上传数据源（EDIFACT / CSV / Excel）</h2>
+  <form method="post" enctype="multipart/form-data" class="upload-form">
+    <input type="file" name="data_file" required>
+    <select name="template_id">
+      <option value="">— 表格文件请选择映射模板 —</option>
+      {% for t in templates %}
+      <option value="{{ t[0] }}">{{ t[1] }}（{{ t[2] }}）</option>
+      {% endfor %}
+    </select>
+    <button type="submit">上传并自动跑流水线</button>
+  </form>
+</section>
+
+<section class="card">
+  <h2>文件清单（{{ files|length }}）</h2>
+  <table>
+    <thead><tr><th>文件名</th><th>类型</th><th>报文</th><th>模板</th><th>大小</th><th>解析状态</th><th>问题数</th><th>接入时间</th><th></th></tr></thead>
+    <tbody>
+    {% for f in files %}
+      <tr>
+        <td class="mono">{{ f.filename }}</td>
+        <td>{{ f.source_type }}</td>
+        <td>{{ f.message_type or '—' }}</td>
+        <td>{{ f.template_id or '—' }}</td>
+        <td>{{ f.byte_size }} B</td>
+        <td><span class="badge badge-{{ f.parse_status }}">{{ f.parse_status }}</span></td>
+        <td>{{ f.parse_errors|length }}</td>
+        <td>{{ f.ingested_at }}</td>
+        <td><a href="{{ url_for('source_detail', file_id=f.file_id) }}">原始留痕</a></td>
+      </tr>
+    {% else %}
+      <tr><td colspan="9" class="empty">还没有接入任何文件。</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

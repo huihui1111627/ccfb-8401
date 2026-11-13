@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}对账差异{% endblock %}
+{% block content %}
+<h1>对账差异</h1>
+
+<section class="card">
+  <h2>筛选</h2>
+  <form method="get" class="filter-form">
+    <select name="severity">
+      <option value="">全部级别</option>
+      {% for s in ['ERROR','WARN','INFO'] %}
+      <option value="{{ s }}" {% if filters.severity==s %}selected{% endif %}>{{ s }}</option>
+      {% endfor %}
+    </select>
+    <select name="diff_type">
+      <option value="">全部类型</option>
+      {% for t in types %}<option value="{{ t }}" {% if filters.diff_type==t %}selected{% endif %}>{{ t }}</option>{% endfor %}
+    </select>
+    <button type="submit">应用</button>
+  </form>
+  <table>
+    <thead><tr><th>级别</th><th>类型</th><th>箱号</th><th>描述</th><th>详情</th><th>时间</th></tr></thead>
+    <tbody>{% for d in diffs %}
+      <tr>
+        <td><span class="sev sev-{{ d.severity }}">{{ d.severity }}</span></td>
+        <td class="mono">{{ d.type }}</td>
+        <td class="mono">{{ d.container_no or '—' }}</td>
+        <td>{{ d.desc }}</td>
+        <td><details><summary>JSON</summary><pre>{{ d.detail | tojson(indent=2) }}</pre></details></td>
+        <td>{{ d.at }}</td>
+      </tr>
+    {% else %}<tr><td colspan="6" class="empty">无差异记录。</td></tr>{% endfor %}</tbody>
+  </table>
+</section>
+
+<section class="card">
+  <h2>船次航线装卸量统计</h2>
+  <table>
+    <thead><tr><th>船名</th><th>航次</th><th>港口</th><th>装船(箱)</th><th>卸船(箱)</th>
+      <th>装船(TEU)</th><th>卸船(TEU)</th><th>进场</th><th>出场</th></tr></thead>
+    <tbody>{% for s in stats %}
+      <tr><td>{{ s[0] }}</td><td>{{ s[1] }}</td><td class="mono">{{ s[2] }}</td>
+        <td>{{ s[3] }}</td><td>{{ s[4] }}</td><td>{{ '%.1f'|format(s[5]) }}</td>
+        <td>{{ '%.1f'|format(s[6]) }}</td><td>{{ s[7] }}</td><td>{{ s[8] }}</td></tr>
+    {% else %}<tr><td colspan="9" class="empty">暂无统计。</td></tr>{% endfor %}</tbody>
+  </table>
+</section>
+{% endblock %}

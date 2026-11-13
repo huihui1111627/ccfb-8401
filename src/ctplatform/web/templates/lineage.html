@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}字段血缘{% endblock %}
+{% block content %}
+<h1>字段血缘</h1>
+
+<section class="card">
+  <h2>定位事件</h2>
+  <form method="get" class="filter-form">
+    <input type="text" name="container_no" value="{{ container_no }}" placeholder="输入箱号，取其最早事件">
+    <input type="text" name="event_id" value="{{ event_id }}" placeholder="或直接输入 event_id" size="36">
+    <button type="submit">追溯</button>
+  </form>
+  <details>
+    <summary>事件选择（前 50 条）</summary>
+    <table>
+      <thead><tr><th>event_id</th><th>箱号</th><th>类型</th><th>时间</th><th></th></tr></thead>
+      <tbody>{% for c in candidates %}
+        <tr><td class="mono small">{{ c[0] }}</td><td class="mono">{{ c[1] }}</td>
+        <td>{{ c[2] }}</td><td>{{ c[3] }}</td>
+        <td><a href="{{ url_for('lineage', event_id=c[0]) }}">追血缘</a></td></tr>
+      {% endfor %}</tbody>
+    </table>
+  </details>
+</section>
+
+{% if event %}
+<section class="card">
+  <h2>事件 {{ event[1] }} · {{ event[2] }} @ {{ event[3] }}</h2>
+  <p class="mono small">event_id = {{ event[0] }} · 来源 {{ event[6] }} · 段/行 {{ event[7] }}</p>
+  <table>
+    <thead><tr><th>统一字段</th><th>来源文件</th><th>来源类型</th><th>段/列定位</th><th>行号</th>
+      <th>原始值</th><th>→</th><th>标准值</th></tr></thead>
+    <tbody>{% for l in lineage %}
+      <tr>
+        <td class="mono">{{ l.field }}</td>
+        <td><a href="{{ url_for('source_detail', file_id=l.file_id) }}">{{ l.filename }}</a></td>
+        <td>{{ l.kind }}</td>
+        <td class="mono">{{ l.locator }}</td>
+        <td>{{ l.line or '—' }}</td>
+        <td class="mono raw-val">{{ l.raw or '—' }}</td>
+        <td class="arrow">→</td>
+        <td class="mono std-val">{{ l.std or '—' }}</td>
+      </tr>
+    {% endfor %}</tbody>
+  </table>
+  <p class="hint">点击文件名可查看完整原始报文与抽取记录，实现"字段 → 报文 → 行"全链路回溯。</p>
+</section>
+{% endif %}
+{% endblock %}

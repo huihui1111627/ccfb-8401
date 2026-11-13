@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}总览 · 箱动态数据平台{% endblock %}
+{% block content %}
+<h1>总览仪表盘</h1>
+<div class="kpi-grid">
+  <div class="kpi"><div class="num">{{ kpi.files }}</div><div class="lbl">数据源文件</div></div>
+  <div class="kpi warn"><div class="num">{{ kpi.files_failed }}</div><div class="lbl">解析失败文件</div></div>
+  <div class="kpi"><div class="num">{{ kpi.containers }}</div><div class="lbl">在管箱量</div></div>
+  <div class="kpi"><div class="num">{{ kpi.events }}</div><div class="lbl">归一化事件</div></div>
+  <div class="kpi warn"><div class="num">{{ kpi.duplicates }}</div><div class="lbl">重复报文事件</div></div>
+  <div class="kpi danger"><div class="num">{{ kpi.diffs }}</div><div class="lbl">对账差异</div></div>
+  <div class="kpi danger"><div class="num">{{ kpi.chains_bad }}</div><div class="lbl">异常动态链</div></div>
+</div>
+
+<div class="cols">
+  <section class="card">
+    <h2>动态链状态分布</h2>
+    {% if chain_dist %}
+    <table><thead><tr><th>状态</th><th>箱数</th></tr></thead><tbody>
+      {% for st, cnt in chain_dist %}
+      <tr><td><span class="badge badge-{{ st }}">{{ st }}</span></td><td>{{ cnt }}</td></tr>
+      {% endfor %}
+    </tbody></table>
+    {% else %}<p class="empty">暂无数据，请先在「数据源接入」上传或用 CLI 生成样例。</p>{% endif %}
+  </section>
+  <section class="card">
+    <h2>差异类型分布</h2>
+    {% if diff_dist %}
+    <table><thead><tr><th>类型</th><th>级别</th><th>数量</th></tr></thead><tbody>
+      {% for t, sev, cnt in diff_dist %}
+      <tr><td>{{ t }}</td><td><span class="sev sev-{{ sev }}">{{ sev }}</span></td><td>{{ cnt }}</td></tr>
+      {% endfor %}
+    </tbody></table>
+    {% else %}<p class="empty">暂无差异。</p>{% endif %}
+  </section>
+</div>
+
+<section class="card">
+  <h2>最近流水线运行</h2>
+  {% if recent_runs %}
+  <table><thead><tr><th>运行ID</th><th>开始时间</th><th>状态</th><th>文件</th><th>事件</th><th>重复</th><th>差异</th></tr></thead>
+  <tbody>{% for r in recent_runs %}
+    <tr><td>{{ r[0] }}</td><td>{{ r[1] }}</td><td><span class="badge badge-{{ r[2] }}">{{ r[2] }}</span></td>
+    <td>{{ r[3] }}</td><td>{{ r[4] }}</td><td>{{ r[5] }}</td><td>{{ r[6] }}</td></tr>
+  {% endfor %}</tbody></table>
+  {% else %}<p class="empty">尚未运行过流水线。</p>{% endif %}
+</section>
+{% endblock %}

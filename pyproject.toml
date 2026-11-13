@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ctplatform"
+version = "0.1.0"
+description = "码头箱动态数据平台：EDIFACT/Excel/CSV 接入、统一映射、动态链、对账与血缘"
+requires-python = ">=3.10"
+dependencies = [
+    "duckdb>=1.0",
+    "flask>=3.0",
+    "openpyxl>=3.1",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=8.0"]
+
+[project.scripts]
+ctplatform = "ctplatform.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+ctplatform = ["web/templates/*.html", "web/static/*.css"]

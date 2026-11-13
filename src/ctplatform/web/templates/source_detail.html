@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}原始留痕 · {{ f[1] }}{% endblock %}
+{% block content %}
+<h1>原始留痕：<span class="mono">{{ f[1] }}</span></h1>
+<p><a href="{{ url_for('sources') }}">← 返回数据源接入</a></p>
+
+<section class="card">
+  <h2>文件信息</h2>
+  <table class="kv">
+    <tr><th>file_id</th><td class="mono">{{ f[0] }}</td></tr>
+    <tr><th>类型 / 报文</th><td>{{ f[2] }} / {{ f[3] or '—' }}</td></tr>
+    <tr><th>SHA256</th><td class="mono">{{ f[7] }}</td></tr>
+    <tr><th>解析状态</th><td><span class="badge badge-{{ f[8] }}">{{ f[8] }}</span></td></tr>
+  </table>
+  {% if errors %}
+  <h3>解析问题</h3>
+  <ul class="error-list">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>
+  {% endif %}
+</section>
+
+<section class="card">
+  <h2>原始报文内容</h2>
+  <pre class="raw-text">{{ f[6] }}</pre>
+</section>
+
+<section class="card">
+  <h2>抽取的原始记录（{{ records|length }}）</h2>
+  {% for r in records %}
+  <details class="record">
+    <summary>#{{ r.index }} · 行 {{ r.line }} ·
+      <span class="badge badge-{{ 'OK' if r.status=='OK' else 'ERROR' }}">{{ r.status }}</span></summary>
+    <pre>{{ r.payload }}</pre>
+  </details>
+  {% else %}<p class="empty">无记录。</p>{% endfor %}
+</section>
+{% endblock %}
